@@ -7,7 +7,6 @@ import ca.uhn.fhir.fhirpath.IFhirPath;
 import java.util.List;
 import org.apache.commons.lang3.tuple.Pair;
 import org.hl7.elm.r1.VersionedIdentifier;
-import org.hl7.fhir.instance.model.api.IBaseParameters;
 import org.opencds.cqf.fhir.cql.engine.parameters.CqlParameterDefinition;
 import org.opencds.cqf.fhir.utility.FhirPathCache;
 import org.slf4j.Logger;
@@ -38,10 +37,7 @@ public class LibraryConstructor {
         constructParameters(sb, parameters);
         constructExpression(sb, expression);
 
-        String cql = sb.toString();
-
-        logger.debug(cql);
-        return cql;
+        return sb.toString();
     }
 
     private void constructExpression(StringBuilder sb, String expression) {
@@ -100,27 +96,6 @@ public class LibraryConstructor {
 
     private void constructHeader(StringBuilder sb) {
         sb.append(String.format("library expression version '1.0.0'%n%n"));
-    }
-
-    private String getFhirVersion(IBaseParameters parameters) {
-        if (parameters == null) {
-            return null;
-        }
-
-        switch (parameters.getStructureFhirVersionEnum()) {
-            case DSTU3:
-                return "3.0.1";
-            case R4:
-                return "4.0.1";
-            case DSTU2:
-            case DSTU2_1:
-            case DSTU2_HL7ORG:
-            case R5:
-            default:
-                throw new IllegalArgumentException(String.format(
-                        "Unsupported version of FHIR: %s",
-                        parameters.getStructureFhirVersionEnum().getFhirVersionString()));
-        }
     }
 
     protected VersionedIdentifier getVersionedIdentifier(String url) {

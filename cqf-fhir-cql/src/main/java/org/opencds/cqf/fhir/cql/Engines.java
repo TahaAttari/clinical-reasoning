@@ -50,18 +50,18 @@ public class Engines {
     }
 
     public static CqlEngine forRepository(Repository repository, EvaluationSettings settings) {
-        return forRepository(repository, settings, null, true);
+        return forRepository(repository, settings, null);
     }
 
     public static CqlEngine forRepository(
-            Repository repository, EvaluationSettings settings, NpmProcessor npmProcessor, Boolean useLibraryCache) {
+            Repository repository, EvaluationSettings settings, NpmProcessor npmProcessor) {
         var terminologyProvider = new RepositoryTerminologyProvider(
                 repository, settings.getValueSetCache(), settings.getTerminologySettings());
         var sources = Collections.singletonList(buildLibrarySource(repository));
 
         var dataProviders = buildDataProviders(repository, null, terminologyProvider, settings.getRetrieveSettings());
         var environment =
-                buildEnvironment(settings, sources, terminologyProvider, dataProviders, npmProcessor, useLibraryCache);
+                buildEnvironment(settings, sources, terminologyProvider, dataProviders, npmProcessor);
 
         return new CqlEngine(
                 environment, settings.getCqlOptions().getCqlEngineOptions().getOptions());
@@ -69,15 +69,14 @@ public class Engines {
 
     public static CqlEngine forRepositoryAndSettings(
             EvaluationSettings settings, Repository repository, IBaseBundle additionalData) {
-        return forRepositoryAndSettings(settings, repository, additionalData, null, true);
+        return forRepositoryAndSettings(settings, repository, additionalData, null);
     }
 
     public static CqlEngine forRepositoryAndSettings(
             EvaluationSettings settings,
             Repository repository,
             IBaseBundle additionalData,
-            NpmProcessor npmProcessor,
-            Boolean useLibraryCache) {
+            NpmProcessor npmProcessor) {
         checkNotNull(settings);
         checkNotNull(repository);
 
@@ -89,7 +88,7 @@ public class Engines {
         var dataProviders =
                 buildDataProviders(repository, additionalData, terminologyProvider, settings.getRetrieveSettings());
         var environment = buildEnvironment(
-                settings, sourceProviders, terminologyProvider, dataProviders, npmProcessor, useLibraryCache);
+                settings, sourceProviders, terminologyProvider, dataProviders, npmProcessor);
         return new CqlEngine(
                 environment, settings.getCqlOptions().getCqlEngineOptions().getOptions());
     }
@@ -106,8 +105,7 @@ public class Engines {
             List<LibrarySourceProvider> librarySourceProviders,
             TerminologyProvider terminologyProvider,
             Map<String, DataProvider> dataProviders,
-            NpmProcessor npmProcessor,
-            Boolean useLibraryCache) {
+            NpmProcessor npmProcessor) {
         if (settings.getCqlOptions().useEmbeddedLibraries()) {
             librarySourceProviders.add(new FhirLibrarySourceProvider());
         }
@@ -130,7 +128,7 @@ public class Engines {
         LibraryManager libraryManager = new LibraryManager(
                 modelManager,
                 settings.getCqlOptions().getCqlCompilerOptions(),
-                Boolean.TRUE.equals(useLibraryCache) ? settings.getLibraryCache() : null);
+                settings.getLibraryCache());
         libraryManager.getLibrarySourceLoader().clearProviders();
 
         if (npmProcessor != null) {

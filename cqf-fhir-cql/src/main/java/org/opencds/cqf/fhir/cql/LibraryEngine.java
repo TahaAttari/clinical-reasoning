@@ -70,7 +70,7 @@ public class LibraryEngine {
             IBaseBundle additionalData,
             Set<String> expressions) {
         var cqlFhirParametersConverter = Engines.getCqlFhirParametersConverter(repository.fhirContext());
-        var engine = Engines.forRepositoryAndSettings(settings, repository, additionalData, npmProcessor, true);
+        var engine = Engines.forRepositoryAndSettings(settings, repository, additionalData, npmProcessor);
         var evaluationParameters = cqlFhirParametersConverter.toCqlParameters(parameters);
         var result = engine.evaluate(id.getId(), expressions, buildContextParameter(patientId), evaluationParameters);
 
@@ -94,7 +94,7 @@ public class LibraryEngine {
         List<LibrarySourceProvider> librarySourceProviders = new ArrayList<>();
         librarySourceProviders.add(new StringLibrarySourceProvider(Lists.newArrayList(cql)));
 
-        var engine = Engines.forRepositoryAndSettings(settings, repository, bundle, npmProcessor, false);
+        var engine = Engines.forRepositoryAndSettings(settings, repository, bundle, npmProcessor);
         var providers = engine.getEnvironment().getLibraryManager().getLibrarySourceLoader();
         for (var source : librarySourceProviders) {
             providers.registerProvider(source);

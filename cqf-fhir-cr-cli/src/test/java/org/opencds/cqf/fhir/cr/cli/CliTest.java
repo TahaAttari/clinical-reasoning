@@ -16,7 +16,6 @@ import org.junit.jupiter.api.TestInstance;
 import org.junit.jupiter.api.TestInstance.Lifecycle;
 
 @TestInstance(Lifecycle.PER_CLASS)
-@Disabled
 public class CliTest {
 
     private ByteArrayOutputStream outContent;
@@ -107,11 +106,8 @@ public class CliTest {
         String[] args = new String[] {
             "cql",
             "-fv=R4",
-            "-lu=" + testResourcePath + "/r4",
             "-ln=TestFHIR",
-            "-m=FHIR",
-            "-mu=" + testResourcePath + "/r4",
-            "-t=" + testResourcePath + "/r4/vocabulary/ValueSet",
+            "-rd=" + testResourcePath + "/r4",
             "-c=Patient",
             "-cv=example"
         };
@@ -119,6 +115,8 @@ public class CliTest {
         Main.run(args);
 
         String output = outContent.toString();
+
+        String error = errContent.toString();
 
         assertTrue(output.contains("Patient=Patient(id=example)"));
         assertTrue(output.contains("TestAdverseEvent=[AdverseEvent(id=example)]"));

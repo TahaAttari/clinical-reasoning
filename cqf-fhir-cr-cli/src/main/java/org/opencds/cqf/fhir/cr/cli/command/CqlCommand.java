@@ -18,6 +18,7 @@ import org.hl7.fhir.instance.model.api.IBaseResource;
 import org.hl7.fhir.r5.context.IWorkerContext;
 import org.opencds.cqf.cql.engine.execution.EvaluationResult;
 import org.opencds.cqf.cql.engine.execution.ExpressionResult;
+import org.opencds.cqf.fhir.api.Repository;
 import org.opencds.cqf.fhir.cql.CqlOptions;
 import org.opencds.cqf.fhir.cql.Engines;
 import org.opencds.cqf.fhir.cql.EvaluationSettings;
@@ -60,23 +61,12 @@ public class CqlCommand implements Callable<Integer> {
 
     static class LibraryParameter {
         @Option(
-                names = {"-lu", "--library-url"},
-                required = true)
-        public String libraryUrl;
-
-        @Option(
                 names = {"-ln", "--library-name"},
                 required = true)
         public String libraryName;
 
         @Option(names = {"-lv", "--library-version"})
         public String libraryVersion;
-
-        @Option(names = {"-t", "--terminology-url"})
-        public String terminologyUrl;
-
-        @ArgGroup(multiplicity = "0..1", exclusive = false)
-        public ModelParameter model;
 
         @ArgGroup(multiplicity = "0..*", exclusive = false)
         public List<ParameterParameter> parameters;
@@ -93,14 +83,6 @@ public class CqlCommand implements Callable<Integer> {
 
             @Option(names = {"-cv", "--context-value"})
             public String contextValue;
-        }
-
-        static class ModelParameter {
-            @Option(names = {"-m", "--model"})
-            public String modelName;
-
-            @Option(names = {"-mu", "--model-url"})
-            public String modelUrl;
         }
 
         static class ParameterParameter {
@@ -134,12 +116,12 @@ public class CqlCommand implements Callable<Integer> {
 
     private String toVersionNumber(FhirVersionEnum fhirVersion) {
         switch (fhirVersion) {
+            case DSTU3:
+                return "3.0.2";
             case R4:
                 return "4.0.1";
             case R5:
-                return "5.0.0-ballot";
-            case DSTU3:
-                return "3.0.2";
+                return "5.0.0";
             default:
                 throw new IllegalArgumentException(String.format("Unsupported FHIR version %s", fhirVersion));
         }
@@ -167,9 +149,10 @@ public class CqlCommand implements Callable<Integer> {
 
         var evaluationSettings = EvaluationSettings.getDefault();
         evaluationSettings.setCqlOptions(cqlOptions);
-        var repository = new IGFileStructureRepository(fhirContext, rootDir, IGLayoutMode.DIRECTORY, EncodingEnum.JSON);
+
+        var repository = createRepository(fhirContext, rootDir);
         var engine = Engines.forRepositoryAndSettings(
-                evaluationSettings, repository, null, new NpmProcessor(igContext), true);
+                evaluationSettings, repository, null, new NpmProcessor(igContext));
 
         for (LibraryParameter library : libraries) {
 
@@ -187,6 +170,14 @@ public class CqlCommand implements Callable<Integer> {
         }
 
         return 0;
+    }
+
+    private Repository createRepository(FhirContext fhirContext, String rootDir) {
+        if (rootDir == null) {
+            return new NoOpRepository(fhirContext);
+        }
+
+        return new IGFileStructureRepository(fhirContext, rootDir, IGLayoutMode.DIRECTORY, EncodingEnum.JSON);
     }
 
     @SuppressWarnings("java:S106") // We are intending to output to the console here as a CLI tool

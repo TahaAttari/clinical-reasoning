@@ -1,5 +1,6 @@
 package org.opencds.cqf.fhir.utility.repository;
 
+import static com.google.common.base.Preconditions.checkNotNull;
 import static java.util.Objects.requireNonNull;
 
 import ca.uhn.fhir.context.FhirContext;
@@ -83,10 +84,10 @@ public class IGFileStructureRepository implements Repository {
 
     public IGFileStructureRepository(
             FhirContext fhirContext, String root, IGLayoutMode layoutMode, EncodingEnum encodingEnum) {
-        this.fhirContext = fhirContext;
-        this.root = root;
-        this.layoutMode = layoutMode;
-        this.encodingEnum = encodingEnum;
+        this.fhirContext = checkNotNull(fhirContext);
+        this.root = checkNotNull(root);
+        this.layoutMode = checkNotNull(layoutMode);
+        this.encodingEnum = checkNotNull(encodingEnum);
         this.parser = parserForEncoding(fhirContext, encodingEnum);
         this.resourceMatcher = Repositories.getResourceMatcher(this.fhirContext);
     }

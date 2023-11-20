@@ -353,7 +353,9 @@
                     <version>2.39.0</version>
                     <configuration>
                         <java>
-                            <palantirJavaFormat/>
+                            <palantirJavaFormat>
+                                <version>2.38.0</version>
+                            </palantirJavaFormat>
                         </java>
                     </configuration>
                 </plugin>
@@ -562,6 +564,10 @@
                     <plugin>
                         <groupId>org.apache.maven.plugins</groupId>
                         <artifactId>maven-javadoc-plugin</artifactId>
+                    </plugin>
+                    <plugin>
+                        <groupId>org.jacoco</groupId>
+                        <artifactId>jacoco-maven-plugin</artifactId>
                     </plugin>
                 </plugins>
             </build>

@@ -6,6 +6,11 @@ on:
 
 permissions:
   contents: write
+  checks: write
+
+concurrency:
+    group: ${{ github.head_ref || github.run_id }}
+    cancel-in-progress: true
 
 jobs:
   maven:
@@ -25,6 +30,15 @@ jobs:
         env:
           MAVEN_USERNAME: ${{ vars.OSSRH_USERNAME }}
           MAVEN_PASSWORD: ${{ secrets.OSSRH_TOKEN }}
+      - name: Publish test report
+        uses: mikepenz/action-junit-report@v3
+        if: success() || failure() # always run even if the previous step fails
+        with:
+          report_paths: "**/target/surefire-reports/TEST-*.xml"
+      - name: Upload coverage reports to Codecov
+        uses: codecov/codecov-action@v3
+        env:
+          CODECOV_TOKEN: ${{ secrets.CODECOV_TOKEN }}
       - uses: actions/setup-python@v4
         with:
           python-version: 3.x

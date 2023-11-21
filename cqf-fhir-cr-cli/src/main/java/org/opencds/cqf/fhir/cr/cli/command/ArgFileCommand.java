@@ -16,7 +16,7 @@ public class ArgFileCommand implements Callable<Integer> {
 
     @Override
     public Integer call() throws Exception {
-        List<String> args = Files.readAllLines(files[0].toPath());
-        return Main.run(args.toArray(new String[args.size()]));
+        var args = Files.readAllLines(files[0].toPath());
+        return Main.run(args.toArray(String[]::new));
     }
 }

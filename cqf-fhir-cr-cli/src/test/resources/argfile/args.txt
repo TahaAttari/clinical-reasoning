@@ -1,6 +1,6 @@
 cql
 -fv=R4
--rd=src/test/resources/r4
+-dp=src/test/resources/r4
 -ln=TestFHIR
 -c=Patient
 -cv=example

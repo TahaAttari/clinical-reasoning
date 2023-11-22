@@ -56,14 +56,14 @@ public class CliTest {
 
     @Test
     public void testVersion() {
-        String[] args = new String[] {"-V"};
+        String[] args = new String[] { "-V" };
         Main.run(args);
         assertTrue(outContent.toString().startsWith("cqf-fhir-cr-cli version:"));
     }
 
     @Test
     public void testHelp() {
-        String[] args = new String[] {"-h"};
+        String[] args = new String[] { "-h" };
         Main.run(args);
         String output = outContent.toString();
         assertTrue(output.startsWith("Usage:"));
@@ -87,11 +87,12 @@ public class CliTest {
     }
 
     @Test
-    public void testDstu3() {}
+    public void testDstu3() {
+    }
 
     @Test
     public void testArgFile() {
-        String[] args = new String[] {"argfile", testResourcePath + "/argfile/args.txt"};
+        String[] args = new String[] { "argfile", testResourcePath + "/argfile/args.txt" };
 
         Main.run(args);
 
@@ -104,12 +105,12 @@ public class CliTest {
     @Test
     public void testR4() {
         String[] args = new String[] {
-            "cql",
-            "-fv=R4",
-            "-ln=TestFHIR",
-            "-rd=" + testResourcePath + "/r4",
-            "-c=Patient",
-            "-cv=example"
+                "cql",
+                "-fv=R4",
+                "-ln=TestFHIR",
+                "-rd=" + testResourcePath + "/r4",
+                "-c=Patient",
+                "-cv=example"
         };
 
         Main.run(args);
@@ -135,15 +136,14 @@ public class CliTest {
     @Test
     public void testR4WithHelpers() {
         String[] args = new String[] {
-            "cql",
-            "-fv=R4",
-            "-lu=" + testResourcePath + "/r4",
-            "-ln=TestFHIRWithHelpers",
-            "-m=FHIR",
-            "-mu=" + testResourcePath + "/r4",
-            "-t=" + testResourcePath + "/r4/vocabulary/ValueSet",
-            "-c=Patient",
-            "-cv=example"
+                "cql",
+                "-fv=R4",
+                "-lp=" + testResourcePath + "/r4",
+                "-ln=TestFHIRWithHelpers",
+                "-dp=" + testResourcePath + "/r4",
+                "-tp=" + testResourcePath + "/r4/vocabulary/ValueSet",
+                "-c=Patient",
+                "-cv=example"
         };
 
         Main.run(args);
@@ -167,15 +167,14 @@ public class CliTest {
     @Test
     public void testUSCore() {
         String[] args = new String[] {
-            "cql",
-            "-fv=R4",
-            "-lu=" + testResourcePath + "/uscore",
-            "-ln=TestUSCore",
-            "-m=FHIR",
-            "-mu=" + testResourcePath + "/uscore",
-            "-t=" + testResourcePath + "/uscore/vocabulary/ValueSet",
-            "-c=Patient",
-            "-cv=example"
+                "cql",
+                "-fv=R4",
+                "-lp=" + testResourcePath + "/uscore",
+                "-ln=TestUSCore",
+                "-dp=" + testResourcePath + "/uscore",
+                "-tp=" + testResourcePath + "/uscore/vocabulary/ValueSet",
+                "-c=Patient",
+                "-cv=example"
         };
 
         Main.run(args);
@@ -196,15 +195,14 @@ public class CliTest {
     @Test
     public void testQICore() {
         String[] args = new String[] {
-            "cql",
-            "-fv=R4",
-            "-lu=" + testResourcePath + "/qicore",
-            "-ln=TestQICore",
-            "-m=FHIR",
-            "-mu=" + testResourcePath + "/qicore",
-            "-t=" + testResourcePath + "/qicore/vocabulary/ValueSet",
-            "-c=Patient",
-            "-cv=example"
+                "cql",
+                "-fv=R4",
+                "-lp=" + testResourcePath + "/qicore",
+                "-ln=TestQICore",
+                "-dp=" + testResourcePath + "/qicore",
+                "-tp=" + testResourcePath + "/qicore/vocabulary/ValueSet",
+                "-c=Patient",
+                "-cv=example"
         };
 
         Main.run(args);
@@ -228,27 +226,27 @@ public class CliTest {
         // NOTE: Testing combinations here because ordering is not guaranteed
         assertTrue(
                 output.contains(
-                                "TestGeneralDeviceNotRequested=[DeviceRequest(id=negation-example), DeviceRequest(id=negation-with-code-example)]")
+                        "TestGeneralDeviceNotRequested=[DeviceRequest(id=negation-example), DeviceRequest(id=negation-with-code-example)]")
                         || output.contains(
                                 "TestGeneralDeviceNotRequested=[DeviceRequest(id=negation-with-code-example), DeviceRequest(id=negation-example)]"));
         assertTrue(
                 output.contains(
-                                "TestGeneralDeviceNotRequestedCode=[DeviceRequest(id=negation-example), DeviceRequest(id=negation-with-code-example)]")
+                        "TestGeneralDeviceNotRequestedCode=[DeviceRequest(id=negation-example), DeviceRequest(id=negation-with-code-example)]")
                         || output.contains(
                                 "TestGeneralDeviceNotRequestedCode=[DeviceRequest(id=negation-with-code-example), DeviceRequest(id=negation-example)]"));
         assertTrue(
                 output.contains(
-                                "TestGeneralDeviceNotRequestedValueSet=[DeviceRequest(id=negation-example), DeviceRequest(id=negation-with-code-example)]")
+                        "TestGeneralDeviceNotRequestedValueSet=[DeviceRequest(id=negation-example), DeviceRequest(id=negation-with-code-example)]")
                         || output.contains(
                                 "TestGeneralDeviceNotRequestedValueSet=[DeviceRequest(id=negation-with-code-example), DeviceRequest(id=negation-example)]"));
         assertTrue(
                 output.contains(
-                                "TestGeneralDeviceNotRequestedActual=[DeviceRequest(id=negation-example), DeviceRequest(id=negation-with-code-example)]")
+                        "TestGeneralDeviceNotRequestedActual=[DeviceRequest(id=negation-example), DeviceRequest(id=negation-with-code-example)]")
                         || output.contains(
                                 "TestGeneralDeviceNotRequestedActual=[DeviceRequest(id=negation-with-code-example), DeviceRequest(id=negation-example)]"));
         assertTrue(
                 output.contains(
-                                "TestGeneralDeviceNotRequestedExplicit=[DeviceRequest(id=negation-example), DeviceRequest(id=negation-with-code-example)]")
+                        "TestGeneralDeviceNotRequestedExplicit=[DeviceRequest(id=negation-example), DeviceRequest(id=negation-with-code-example)]")
                         || output.contains(
                                 "TestGeneralDeviceNotRequestedExplicit=[DeviceRequest(id=negation-with-code-example), DeviceRequest(id=negation-example)]"));
         assertTrue(output.contains(
@@ -260,15 +258,14 @@ public class CliTest {
     @Test
     public void testQICoreCommon() {
         String[] args = new String[] {
-            "cql",
-            "-fv=R4",
-            "-lu=" + testResourcePath + "/qicorecommon",
-            "-ln=QICoreCommonTests",
-            "-m=FHIR",
-            "-mu=" + testResourcePath + "/qicorecommon",
-            "-t=" + testResourcePath + "/qicorecommon/vocabulary/ValueSet",
-            "-c=Patient",
-            "-cv=example"
+                "cql",
+                "-fv=R4",
+                "-lp=" + testResourcePath + "/qicorecommon",
+                "-ln=QICoreCommonTests",
+                "-dp=" + testResourcePath + "/qicorecommon",
+                "-tp=" + testResourcePath + "/qicorecommon/vocabulary/ValueSet",
+                "-c=Patient",
+                "-cv=example"
         };
 
         Main.run(args);
@@ -289,16 +286,15 @@ public class CliTest {
     @Test
     public void testOptions() {
         String[] args = new String[] {
-            "cql",
-            "-fv=R4",
-            "-op=" + testResourcePath + "/options/cql-options.json",
-            "-lu=" + testResourcePath + "/options",
-            "-ln=FluentFunctions",
-            "-m=FHIR",
-            "-mu=" + testResourcePath + "/options",
-            "-t=" + testResourcePath + "/options/vocabulary/ValueSet",
-            "-c=Patient",
-            "-cv=example"
+                "cql",
+                "-fv=R4",
+                "-op=" + testResourcePath + "/options/cql-options.json",
+                "-lp=" + testResourcePath + "/options",
+                "-ln=FluentFunctions",
+                "-dp=" + testResourcePath + "/options",
+                "-tp=" + testResourcePath + "/options/vocabulary/ValueSet",
+                "-c=Patient",
+                "-cv=example"
         };
 
         Main.run(args);
@@ -313,16 +309,15 @@ public class CliTest {
     @Test
     public void testOptionsFailure() {
         String[] args = new String[] {
-            "cql",
-            "-fv=R4",
-            "-op=" + testResourcePath + "/optionsFailure/cql-options.json",
-            "-lu=" + testResourcePath + "/optionsFailure",
-            "-ln=FluentFunctions",
-            "-m=FHIR",
-            "-mu=" + testResourcePath + "/optionsFailure",
-            "-t=" + testResourcePath + "/optionsFailure/vocabulary/ValueSet",
-            "-c=Patient",
-            "-cv=example"
+                "cql",
+                "-fv=R4",
+                "-op=" + testResourcePath + "/optionsFailure/cql-options.json",
+                "-lp=" + testResourcePath + "/optionsFailure",
+                "-ln=FluentFunctions",
+                "-dp=" + testResourcePath + "/optionsFailure",
+                "-tp=" + testResourcePath + "/optionsFailure/vocabulary/ValueSet",
+                "-c=Patient",
+                "-cv=example"
         };
 
         Main.run(args);
@@ -334,16 +329,15 @@ public class CliTest {
     @Test
     public void testVSCastFunction14() {
         String[] args = new String[] {
-            "cql",
-            "-fv=R4",
-            "-op=" + testResourcePath + "/vscast/cql-options.json",
-            "-lu=" + testResourcePath + "/vscast",
-            "-ln=TestVSCastFunction",
-            "-m=FHIR",
-            "-mu=" + testResourcePath + "/vscast/Patient-17",
-            "-t=" + testResourcePath + "/vscast/vocabulary/ValueSet",
-            "-c=Patient",
-            "-cv=Patient-17"
+                "cql",
+                "-fv=R4",
+                "-op=" + testResourcePath + "/vscast/cql-options.json",
+                "-lp=" + testResourcePath + "/vscast",
+                "-ln=TestVSCastFunction",
+                "-dp=" + testResourcePath + "/vscast/Patient-17",
+                "-tp=" + testResourcePath + "/vscast/vocabulary/ValueSet",
+                "-c=Patient",
+                "-cv=Patient-17"
         };
 
         Main.run(args);
@@ -357,16 +351,15 @@ public class CliTest {
     @Test
     public void testVSCastFunction15() {
         String[] args = new String[] {
-            "cql",
-            "-fv=R4",
-            "-op=" + testResourcePath + "/vscast15/cql-options.json",
-            "-lu=" + testResourcePath + "/vscast15",
-            "-ln=TestVSCastFunction",
-            "-m=FHIR",
-            "-mu=" + testResourcePath + "/vscast15/Patient-17",
-            "-t=" + testResourcePath + "/vscast15/vocabulary/ValueSet",
-            "-c=Patient",
-            "-cv=Patient-17"
+                "cql",
+                "-fv=R4",
+                "-op=" + testResourcePath + "/vscast15/cql-options.json",
+                "-lp=" + testResourcePath + "/vscast15",
+                "-ln=TestVSCastFunction",
+                "-dp=" + testResourcePath + "/vscast15/Patient-17",
+                "-tp=" + testResourcePath + "/vscast15/vocabulary/ValueSet",
+                "-c=Patient",
+                "-cv=Patient-17"
         };
 
         Main.run(args);
@@ -380,16 +373,15 @@ public class CliTest {
     @Test
     public void testQICoreSupplementalDataElements() {
         String[] args = new String[] {
-            "cql",
-            "-fv=R4",
-            "-lu=" + testResourcePath + "/qicore",
-            "-ln=SupplementalDataElements_QICore4",
-            "-lv=2.0.0",
-            "-m=FHIR",
-            "-mu=" + testResourcePath + "/qicore",
-            "-t=" + testResourcePath + "/qicore/vocabulary/ValueSet",
-            "-c=Patient",
-            "-cv=example"
+                "cql",
+                "-fv=R4",
+                "-lp=" + testResourcePath + "/qicore",
+                "-ln=SupplementalDataElements_QICore4",
+                "-lv=2.0.0",
+                "-dp=" + testResourcePath + "/qicore",
+                "-tp=" + testResourcePath + "/qicore/vocabulary/ValueSet",
+                "-c=Patient",
+                "-cv=example"
         };
 
         Main.run(args);
@@ -413,16 +405,15 @@ public class CliTest {
     @Test
     public void testQICoreEXM124Example() {
         String[] args = new String[] {
-            "cql",
-            "-fv=R4",
-            "-lu=" + testResourcePath + "/qicore",
-            "-ln=EXM124_QICore4",
-            "-lv=8.2.000",
-            "-m=FHIR",
-            "-mu=" + testResourcePath + "/qicore",
-            "-t=" + testResourcePath + "/qicore/vocabulary/ValueSet",
-            "-c=Patient",
-            "-cv=example"
+                "cql",
+                "-fv=R4",
+                "-lp=" + testResourcePath + "/qicore",
+                "-ln=EXM124_QICore4",
+                "-lv=8.2.000",
+                "-dp=" + testResourcePath + "/qicore",
+                "-tp=" + testResourcePath + "/qicore/vocabulary/ValueSet",
+                "-c=Patient",
+                "-cv=example"
         };
 
         Main.run(args);
@@ -450,16 +441,15 @@ public class CliTest {
     @Test
     public void testQICoreEXM124Denom() {
         String[] args = new String[] {
-            "cql",
-            "-fv=R4",
-            "-lu=" + testResourcePath + "/qicore",
-            "-ln=EXM124_QICore4",
-            "-lv=8.2.000",
-            "-m=FHIR",
-            "-mu=" + testResourcePath + "/qicore",
-            "-t=" + testResourcePath + "/qicore/vocabulary/ValueSet",
-            "-c=Patient",
-            "-cv=denom-EXM124"
+                "cql",
+                "-fv=R4",
+                "-lp=" + testResourcePath + "/qicore",
+                "-ln=EXM124_QICore4",
+                "-lv=8.2.000",
+                "-dp=" + testResourcePath + "/qicore",
+                "-tp=" + testResourcePath + "/qicore/vocabulary/ValueSet",
+                "-c=Patient",
+                "-cv=denom-EXM124"
         };
 
         Main.run(args);
@@ -478,16 +468,15 @@ public class CliTest {
     @Test
     public void testQICoreEXM124Numer() {
         String[] args = new String[] {
-            "cql",
-            "-fv=R4",
-            "-lu=" + testResourcePath + "/qicore",
-            "-ln=EXM124_QICore4",
-            "-lv=8.2.000",
-            "-m=FHIR",
-            "-mu=" + testResourcePath + "/qicore",
-            "-t=" + testResourcePath + "/qicore/vocabulary/ValueSet",
-            "-c=Patient",
-            "-cv=numer-EXM124"
+                "cql",
+                "-fv=R4",
+                "-lp=" + testResourcePath + "/qicore",
+                "-ln=EXM124_QICore4",
+                "-lv=8.2.000",
+                "-dp=" + testResourcePath + "/qicore",
+                "-tp=" + testResourcePath + "/qicore/vocabulary/ValueSet",
+                "-c=Patient",
+                "-cv=numer-EXM124"
         };
 
         Main.run(args);
@@ -507,18 +496,17 @@ public class CliTest {
     @Disabled("This test is failing on the CI Server for reasons unknown. Need to debug that.")
     public void testSampleContentIG() {
         String[] args = new String[] {
-            "cql",
-            "-fv=R4",
-            "-rd=" + testResourcePath + "/samplecontentig",
-            "-ig=" + "input/mycontentig.xml",
-            "-lu=" + testResourcePath + "/samplecontentig/input/cql",
-            "-ln=DependencyExample",
-            "-lv=0.1.0",
-            "-m=FHIR",
-            "-mu=" + testResourcePath + "/samplecontentig/input/tests/DependencyExample",
-            "-t=" + testResourcePath + "/samplecontentig/input/vocabulary/ValueSet",
-            "-c=Patient",
-            "-cv=example"
+                "cql",
+                "-fv=R4",
+                "-rd=" + testResourcePath + "/samplecontentig",
+                "-ig=" + "input/mycontentig.xml",
+                "-lp=" + testResourcePath + "/samplecontentig/input/cql",
+                "-ln=DependencyExample",
+                "-lv=0.1.0",
+                "-dp=" + testResourcePath + "/samplecontentig/input/tests/DependencyExample",
+                "-tp=" + testResourcePath + "/samplecontentig/input/vocabulary/ValueSet",
+                "-c=Patient",
+                "-cv=example"
         };
 
         Main.run(args);

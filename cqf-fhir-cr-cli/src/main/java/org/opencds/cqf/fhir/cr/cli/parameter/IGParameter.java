@@ -1,17 +1,21 @@
 package org.opencds.cqf.fhir.cr.cli.parameter;
 
-import java.util.List;
-
-import picocli.CommandLine.ArgGroup;
+import ca.uhn.fhir.rest.api.EncodingEnum;
 import picocli.CommandLine.Option;
 
+/**
+ * The root directory and IG resource to use for IG context evaluation
+ */
 public class IGParameter {
-    @Option(names = { "-ig", "--ig-path" })
+    @Option(names = { "-ig",
+            "--ig-path" }, required = true, description = "the path to the IG resource to use for evaluation.")
     public String igPath;
 
-    @ArgGroup(multiplicity = "1..*")
-    List<LibraryParameter> libraries;
-
-    @Option(names = { "-rd", "--root-dir" })
+    @Option(names = { "-rd",
+            "--root-dir" }, description = "the path of the root directory of the IG to use for evaluation.")
     public String rootDir;
+
+    @Option(names = { "-enc",
+            "--encoding" }, description = "the file format the IG uses (XML or JSON). Defaults to JSON.", defaultValue = "JSON")
+    public EncodingEnum encodingEnum;
 }

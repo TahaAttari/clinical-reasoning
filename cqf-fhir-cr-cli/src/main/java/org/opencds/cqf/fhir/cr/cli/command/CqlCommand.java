@@ -2,169 +2,97 @@ package org.opencds.cqf.fhir.cr.cli.command;
 
 import ca.uhn.fhir.context.FhirContext;
 import ca.uhn.fhir.context.FhirVersionEnum;
-import ca.uhn.fhir.rest.api.EncodingEnum;
+import static java.util.Objects.requireNonNull;
+
+import java.nio.file.Path;
 import java.util.Map;
 import java.util.concurrent.Callable;
-import org.apache.commons.lang3.tuple.Pair;
+import org.cqframework.cql.cql2elm.CqlCompilerOptions;
 import org.cqframework.cql.cql2elm.CqlTranslatorOptions;
 import org.cqframework.cql.cql2elm.CqlTranslatorOptionsMapper;
-import org.cqframework.fhir.utilities.IGContext;
-import org.hl7.elm.r1.VersionedIdentifier;
-import org.hl7.fhir.instance.model.api.IBase;
-import org.hl7.fhir.instance.model.api.IBaseDatatype;
-import org.hl7.fhir.instance.model.api.IBaseResource;
-import org.hl7.fhir.r5.context.IWorkerContext;
-import org.opencds.cqf.cql.engine.execution.CqlEngine;
-import org.opencds.cqf.cql.engine.execution.EvaluationResult;
-import org.opencds.cqf.cql.engine.execution.ExpressionResult;
-import org.opencds.cqf.fhir.api.Repository;
-import org.opencds.cqf.fhir.cql.CqlOptions;
-import org.opencds.cqf.fhir.cql.EvaluationSettings;
-import org.opencds.cqf.fhir.cr.cli.parameter.IGParameter;
-import org.opencds.cqf.fhir.cr.cli.parameter.LibraryParameter;
-import org.opencds.cqf.fhir.cr.cli.parameter.RawParameter;
-import org.opencds.cqf.fhir.utility.repository.IGFileStructureRepository;
-import org.opencds.cqf.fhir.utility.repository.IGLayoutMode;
+import org.cqframework.cql.cql2elm.DefaultLibrarySourceProvider;
+import org.cqframework.cql.cql2elm.LibraryManager;
+import org.cqframework.cql.cql2elm.ModelManager;
+import org.opencds.cqf.cql.engine.data.DataProvider;
+import org.opencds.cqf.cql.engine.execution.Environment;
+import org.opencds.cqf.cql.engine.terminology.TerminologyProvider;
+import org.opencds.cqf.fhir.cr.cli.parameter.EvaluationParameterGroup;
+import org.opencds.cqf.fhir.cr.cli.parameter.FhirParameter;
+import org.opencds.cqf.fhir.utility.Constants;
+import org.opencds.cqf.fhir.cr.cli.ExpressionEvaluator;
+import org.opencds.cqf.fhir.cr.cli.ExpressionWriter;
+import org.opencds.cqf.fhir.cr.cli.parameter.EnvironmentParameter;
 import org.slf4j.LoggerFactory;
 import picocli.CommandLine.ArgGroup;
 import picocli.CommandLine.Command;
 
-@Command(name = "cql", mixinStandardHelpOptions = true)
+@Command(name = "cql", mixinStandardHelpOptions = true, description = "evaluate a set of CQL expressions contained within some CQL libraries")
 public class CqlCommand implements Callable<Integer> {
 
-    @ArgGroup(multiplicity = "1")
-    public RawParameter raw;
+    private static final org.slf4j.Logger logger = LoggerFactory.getLogger(CqlCommand.class);
 
-    @ArgGroup(multiplicity = "1")
-    public IGParameter ig;
+    @ArgGroup(multiplicity = "1", exclusive = false)
+    public FhirParameter fhirParameter;
 
-    private class Logger implements IWorkerContext.ILoggingService {
+    @ArgGroup(multiplicity = "1", exclusive = false)
+    public EnvironmentParameter environment;
 
-        private final org.slf4j.Logger log = LoggerFactory.getLogger(Logger.class);
-
-        @Override
-        public void logMessage(String s) {
-            log.warn(s);
-        }
-
-        @Override
-        public void logDebugMessage(LogCategory logCategory, String s) {
-            log.debug("{}: {}", logCategory, s);
-        }
-
-        @Override
-        public boolean isDebugLogging() {
-            return log.isDebugEnabled();
-        }
-    }
-
-    private Integer runRaw(RawParameter raw) {
-        FhirVersionEnum fhirVersionEnum = FhirVersionEnum.valueOf(raw.fhirVersion);
-        CqlOptions cqlOptions = CqlOptions.defaultOptions();
-
-        if (raw.optionsPath != null) {
-            CqlTranslatorOptions options = CqlTranslatorOptionsMapper.fromFile(raw.optionsPath);
-            cqlOptions.setCqlCompilerOptions(options.getCqlCompilerOptions());
-        }
-
-        var evaluationSettings = EvaluationSettings.getDefault();
-        evaluationSettings.setCqlOptions(cqlOptions);
-
-        var engine = new CqlEngine(null);
-
-        for (LibraryParameter library : raw.libraries) {
-
-            VersionedIdentifier identifier = new VersionedIdentifier().withId(library.libraryName);
-
-            Pair<String, Object> contextParameter = null;
-
-            if (library.context != null) {
-                contextParameter = Pair.of(library.context.contextName, library.context.contextValue);
-            }
-
-            EvaluationResult result = engine.evaluate(identifier, contextParameter);
-
-            writeResult(result);
-        }
-
-        return 0;
-    }
-
-    private Integer runIg(IGParameter ig) {
-        IGContext igContext = null;
-        FhirVersionEnum fhirVersionEnum = FhirVersionEnum.valueOf(raw.fhirVersion);
-        if (ig.rootDir != null && ig.igPath != null) {
-            igContext = new IGContext(new Logger());
-            igContext.initializeFromIg(ig.rootDir, ig.igPath, fhirVersionEnum.getFhirVersionString());
-        }
-
-        return 0;
-    }
+    @ArgGroup(multiplicity = "1", exclusive = false)
+    public EvaluationParameterGroup evaluationParameters;
 
     @Override
     public Integer call() throws Exception {
-        // JP - TODO - the real difference between raw and ig is the environment setup.
-        // Then once we have the engine, we can call evaluate on it with the appropriate
-        // parameters.
-        if (raw != null) {
-            return runRaw(raw);
+        try {
+            runRaw(environment);
+            return 0;
+        } catch (Exception e) {
+            logger.error(e.getMessage(), e);
+            return 1;
         }
-
-        return runIg(ig);
     }
 
-    private Repository createRepository(FhirContext fhirContext, String rootDir) {
-        if (rootDir == null) {
-            return new NoOpRepository(fhirContext);
+    private CqlTranslatorOptions loadTranslatorOptions(String optionsPath) {
+        try {
+            return CqlTranslatorOptionsMapper.fromFile(optionsPath);
+        } catch (Exception e) {
+            // intentionally ignored.
         }
 
-        return new IGFileStructureRepository(fhirContext, rootDir, IGLayoutMode.DIRECTORY, EncodingEnum.JSON);
+        return null;
     }
 
-    @SuppressWarnings("java:S106") // We are intending to output to the console here as a CLI tool
-    private void writeResult(EvaluationResult result) {
-        for (Map.Entry<String, ExpressionResult> libraryEntry : result.expressionResults.entrySet()) {
-            System.out.println(libraryEntry.getKey() + "="
-                    + this.tempConvert(libraryEntry.getValue().value()));
-        }
+    private Environment createEnvironment(FhirContext fhirContext, EnvironmentParameter environment) {
+        var translatorOptions = loadTranslatorOptions(environment.optionsPath);
+        var compilerOptions = translatorOptions != null ? translatorOptions.getCqlCompilerOptions()
+                : CqlCompilerOptions.defaultOptions();
 
-        System.out.println();
+        var libraryManager = new LibraryManager(new ModelManager(), compilerOptions);
+        var sourceProvider = new DefaultLibrarySourceProvider(Path.of(environment.libraryPath));
+
+        libraryManager.getLibrarySourceLoader().registerProvider(sourceProvider);
+
+        // TODO: Hmm... reuse the Repository provider here?
+        DataProvider dataProvider = null;
+
+        // TODO: Hmm... reuse the Repository terminolofy provider here?
+        TerminologyProvider terminology = null;
+
+        return new Environment(
+                libraryManager,
+                Map.of(Constants.FHIR_MODEL_URI, dataProvider),
+                terminology);
     }
 
-    private String tempConvert(Object value) {
-        if (value == null) {
-            return "null";
-        }
+    private void runRaw(EnvironmentParameter environment) {
+        requireNonNull(environment);
 
-        String result = "";
-        if (value instanceof Iterable) {
-            result += "[";
-            Iterable<?> values = (Iterable<?>) value;
-            for (Object o : values) {
+        var fhirVersionEnum = FhirVersionEnum.valueOf(fhirParameter.fhirVersion);
+        var fhirContext = FhirContext.forCached(fhirVersionEnum);
+        var e = createEnvironment(fhirContext, environment);
 
-                result += (tempConvert(o) + ", ");
-            }
-
-            if (result.length() > 1) {
-                result = result.substring(0, result.length() - 2);
-            }
-
-            result += "]";
-        } else if (value instanceof IBaseResource) {
-            IBaseResource resource = (IBaseResource) value;
-            result = resource.fhirType()
-                    + (resource.getIdElement() != null
-                            && resource.getIdElement().hasIdPart()
-                                    ? "(id=" + resource.getIdElement().getIdPart() + ")"
-                                    : "");
-        } else if (value instanceof IBase) {
-            result = ((IBase) value).fhirType();
-        } else if (value instanceof IBaseDatatype) {
-            result = ((IBaseDatatype) value).fhirType();
-        } else {
-            result = value.toString();
-        }
-
-        return result;
+        var result = ExpressionEvaluator.evaluateExpressions(e, evaluationParameters);
+        var sb = new StringBuilder();
+        ExpressionWriter.writeResults(result, sb);
+        System.out.println(sb.toString());
     }
 }

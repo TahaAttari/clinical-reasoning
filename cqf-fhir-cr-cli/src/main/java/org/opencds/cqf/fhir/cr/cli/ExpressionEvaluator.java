@@ -60,22 +60,24 @@ public class ExpressionEvaluator {
             CqlParameterGroup cqlParameterGroup) {
         // TODO: Bug in the CQL engine. Doesn't correctly handle multiple context
         // arguments.
+        var context = cqlParameterGroup.context;
         checkArgument(
-                cqlParameterGroup.context.size() <= 1,
+                context.size() <= 1,
                 "Multiple context arguments are not currently supported");
 
         // TODO: Correct handling of the input parameters means looking up the input
         // parameter in the library
         // and converting the incoming string to the correct type.
+        var parameters = cqlParameterGroup.parameters;
         checkArgument(
-                cqlParameterGroup.parameters.isEmpty(),
+                parameters == null || parameters.isEmpty(),
                 "Library parameters are not currently supported");
 
         // TODO: The CQL engine needs some type like this. This is a stopgap for the
         // moment.
         var args = new CqlArguments();
 
-        for (var c : cqlParameterGroup.context) {
+        for (var c : context) {
             args.contextArguments().put(c.contextName, c.contextValue);
         }
 

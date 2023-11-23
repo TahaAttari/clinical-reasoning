@@ -19,10 +19,12 @@ public class CqlParameterGroup {
      * A set of context parameters for CQL (e.g. Patient=123, Encounter=ABC)
      */
     public static class ContextParameter {
-        @Option(names = { "-c", "--context" }, description = "the context name (e.g. Patient, Encounter, etc.)")
+        @Option(names = { "-c",
+                "--context" }, description = "the context name (e.g. Patient, Encounter, etc.)", required = true)
         public String contextName;
 
-        @Option(names = { "-cv", "--context-value" }, description = "the initial value for the context")
+        @Option(names = { "-cv",
+                "--context-value" }, description = "the initial value for the context", required = true)
         public String contextValue;
     }
 
@@ -32,11 +34,11 @@ public class CqlParameterGroup {
      */
     public static class InputParameter {
         @Option(names = { "-p",
-                "--parameter" }, description = "the name of the CQL parameter to set the value for (e.g. Measurement Period)")
+                "--parameter" }, description = "the name of the CQL parameter to set the value for (e.g. Measurement Period)", required = true)
         public String parameterName;
 
         @Option(names = { "-pv",
-                "--parameter-value" }, description = "the value of the parameter (e.g. [@2019, @2020])")
+                "--parameter-value" }, description = "the value of the parameter (e.g. [@2019, @2020])", required = true)
         public String parameterValue;
     }
 }

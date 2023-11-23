@@ -51,8 +51,7 @@ public class IGFileStructureRepository implements Repository {
 
     private final Map<String, IBaseResource> resourceCache = new HashMap<>();
 
-    private static final Map<ResourceCategory, String> categoryDirectories = new ImmutableMap.Builder<
-                    ResourceCategory, String>()
+    private static final Map<ResourceCategory, String> categoryDirectories = new ImmutableMap.Builder<ResourceCategory, String>()
             .put(ResourceCategory.CONTENT, "resources")
             .put(ResourceCategory.DATA, "tests")
             .put(ResourceCategory.TERMINOLOGY, "vocabulary")
@@ -329,7 +328,8 @@ public class IGFileStructureRepository implements Repository {
             for (var idQuery : idQueries) {
                 var idToken = (TokenParam) idQuery;
                 // Need to construct the equivalent "UnqualifiedVersionless" id that the map is
-                // indexed by. If an id has a version it won't match. Need apples-to-apples Ids types
+                // indexed by. If an id has a version it won't match. Need apples-to-apples Ids
+                // types
                 var id = Ids.newId(fhirContext, resourceType.getSimpleName(), idToken.getValue());
                 var r = resourceIdMap.get(id);
                 if (r != null) {

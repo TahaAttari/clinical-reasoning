@@ -8,11 +8,11 @@ import picocli.CommandLine.Option;
  */
 public class IGParameter {
     @Option(names = { "-ig",
-            "--ig-path" }, required = true, description = "the path to the IG resource to use for evaluation.")
+            "--ig-path" }, description = "the path to the IG resource to use for evaluation.")
     public String igPath;
 
     @Option(names = { "-rd",
-            "--root-dir" }, description = "the path of the root directory of the IG to use for evaluation.")
+            "--root-dir" }, required = true, description = "the path of the root directory of the IG to use for evaluation.")
     public String rootDir;
 
     @Option(names = { "-enc",

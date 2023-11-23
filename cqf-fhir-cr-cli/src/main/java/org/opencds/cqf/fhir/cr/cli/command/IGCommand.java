@@ -41,18 +41,19 @@ import ca.uhn.fhir.context.FhirVersionEnum;
 import ca.uhn.fhir.rest.api.EncodingEnum;
 import picocli.CommandLine.ArgGroup;
 import picocli.CommandLine.Command;
+import picocli.CommandLine.Mixin;
 
 @Command(name = "ig", mixinStandardHelpOptions = true, description = "evaluate a set of CQL expressions contained within the context of an IG")
 public class IGCommand implements Callable<Integer> {
     private static final org.slf4j.Logger logger = org.slf4j.LoggerFactory.getLogger(IGCommand.class);
 
-    @ArgGroup(multiplicity = "1", exclusive = false)
-    public FhirParameter fhirParameter;
-
     @ArgGroup(multiplicity = "1")
     public IGParameter ig;
 
-    @ArgGroup(multiplicity = "1", exclusive = false)
+    @Mixin
+    public FhirParameter fhirParameter;
+
+    @Mixin
     public EvaluationParameterGroup evaluationParameters;
 
     @Override

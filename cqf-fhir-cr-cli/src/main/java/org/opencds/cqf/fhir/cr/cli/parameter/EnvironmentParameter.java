@@ -17,7 +17,7 @@ public class EnvironmentParameter {
     public String libraryPath;
 
     @Option(names = { "-op", "--options-path" }, description = {
-            "relative path to the directory containing the CQL compiler options. Defaults to current directory." }, defaultValue = ".")
+            "relative path to the directory containing the CQL compiler options. Defaults to no options." })
     public String optionsPath;
 
     @Option(names = { "-tp", "--terminology-path" }, description = {
@@ -31,10 +31,10 @@ public class EnvironmentParameter {
      * The set of namespaces to configure for the evaluation
      */
     public static class NamespaceParameter {
-        @Option(names = { "-nn", "--namespace-name" }, description = "the namespace to set a url for")
+        @Option(names = { "-nn", "--namespace-name" }, description = "the namespace to set a url for", required = true)
         public String namespaceName;
 
-        @Option(names = { "-nu", "--namespace-uri" }, description = "the uri to set for the namespace")
+        @Option(names = { "-nu", "--namespace-uri" }, description = "the uri to set for the namespace", required = true)
         public String namespaceUri;
     }
 }

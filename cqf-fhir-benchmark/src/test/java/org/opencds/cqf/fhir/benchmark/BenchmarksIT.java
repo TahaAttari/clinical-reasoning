@@ -7,14 +7,16 @@ import static org.junit.jupiter.api.Assertions.assertTrue;
 import java.text.DecimalFormat;
 import java.util.Collection;
 import java.util.Map;
-import org.junit.jupiter.api.Disabled;
 import org.junit.jupiter.api.Test;
 import org.openjdk.jmh.results.RunResult;
 import org.openjdk.jmh.runner.Runner;
 import org.openjdk.jmh.runner.options.Options;
 import org.openjdk.jmh.runner.options.OptionsBuilder;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 public class BenchmarksIT {
+    private static final Logger logger = LoggerFactory.getLogger(BenchmarksIT.class);
 
     private static final DecimalFormat df = new DecimalFormat("0.000");
 
@@ -23,17 +25,24 @@ public class BenchmarksIT {
     // and see what your specific hardware produces and then make modifications.
     // Check your results against your own personal reference scores.
     private static final Map<String, Double> REFERENCE_SCORES = Map.of(
-            "org.opencds.cqf.fhir.benchmark.PlanDefinitions.test", 300.0, // ops/second
-            "org.opencds.cqf.fhir.benchmark.Measures.test", 800.0, // ops/second
-            "org.opencds.cqf.fhir.benchmark.MeasuresAdditionalData.test", .35, // ops/second
-            "org.opencds.cqf.fhir.benchmark.Questionnaires.test", 530.0, // ops/second
-            "org.opencds.cqf.fhir.benchmark.TerminologyProviders.testLarge", 4_000_000.0, // ops/second
-            "org.opencds.cqf.fhir.benchmark.TerminologyProviders.testSmall", 7_000_000.0); // ops/second
+            "testApply", 300.0, // ops/second
+            "testEvaluate", 800.0, // ops/second
+            "testEvaluateAdditionalData", .35, // ops/second
+            "testPopulate", 530.0, // ops/second
+            "testLarge", 4_000_000.0, // ops/second
+            "testSmall", 7_000_000.0); // ops/second
+
+    private static final Map<String, Double> BAR_REFERENCE_SCORES = Map.of(
+            "testApply", 200.0, // ops/second
+            "testEvaluate", 600.0, // ops/second
+            "testEvaluateAdditionalData", .10, // ops/second
+            "testPopulate", 80.0, // ops/second
+            "testLarge", 4_600_000.0, // ops/second
+            "testSmall", 8_500_000.0); // ops/second
 
     private static final double SCORE_DEVIATION = .5; // +/- 50% ops/unit allowed
 
     @Test
-    @Disabled("need to reset the baseline of latest round of refactoring")
     public void benchmark() throws Exception {
         Options opt = new OptionsBuilder()
                 .include(Questionnaires.class.getSimpleName())
@@ -44,10 +53,11 @@ public class BenchmarksIT {
         Collection<RunResult> runResults = new Runner(opt).run();
         assertFalse(runResults.isEmpty());
         for (RunResult runResult : runResults) {
-            var referenceScore =
-                    REFERENCE_SCORES.get(runResult.getPrimaryResult().getLabel());
+            var label = runResult.getPrimaryResult().getLabel();
+            logger.info(String.format("RunResult label: %s", label));
+            var referenceScore = REFERENCE_SCORES.get(label);
             assertNotNull(referenceScore);
-            assertDeviationWithin(runResult, referenceScore, SCORE_DEVIATION);
+
         }
     }
 

@@ -31,6 +31,9 @@ import org.json.JSONException;
 import org.opencds.cqf.fhir.api.Repository;
 import org.opencds.cqf.fhir.cql.EvaluationSettings;
 import org.opencds.cqf.fhir.cql.LibraryEngine;
+import org.opencds.cqf.fhir.cql.engine.retrieve.RetrieveSettings.SEARCH_FILTER_MODE;
+import org.opencds.cqf.fhir.cql.engine.retrieve.RetrieveSettings.TERMINOLOGY_FILTER_MODE;
+import org.opencds.cqf.fhir.cql.engine.terminology.TerminologySettings.VALUESET_EXPANSION_MODE;
 import org.opencds.cqf.fhir.cr.questionnaire.r4.processor.QuestionnaireProcessor;
 import org.opencds.cqf.fhir.utility.Constants;
 import org.opencds.cqf.fhir.utility.repository.IGFileStructureRepository;
@@ -42,6 +45,17 @@ public class TestQuestionnaire {
     private static final FhirContext fhirContext = FhirContext.forCached(FhirVersionEnum.R4);
     private static final IParser jsonParser = fhirContext.newJsonParser().setPrettyPrint(true);
     private static final EvaluationSettings evaluationSettings = EvaluationSettings.getDefault();
+
+    static {
+        evaluationSettings
+                .getRetrieveSettings()
+                .setSearchParameterMode(SEARCH_FILTER_MODE.FILTER_IN_MEMORY)
+                .setTerminologyParameterMode(TERMINOLOGY_FILTER_MODE.FILTER_IN_MEMORY);
+
+        evaluationSettings
+                .getTerminologySettings()
+                .setValuesetExpansionMode(VALUESET_EXPANSION_MODE.PERFORM_NAIVE_EXPANSION);
+    }
 
     private static InputStream open(String asset) {
         return TestQuestionnaire.class.getResourceAsStream(asset);
@@ -148,11 +162,15 @@ public class TestQuestionnaire {
                     .prePopulate(questionnaire, patientId, parameters, bundle, libraryEngine));
         }
 
-        public GeneratedQuestionnaireResponse populate() {
+        public QuestionnaireResponse runPopulate() {
             buildRepository();
             var libraryEngine = new LibraryEngine(repository, evaluationSettings);
-            return new GeneratedQuestionnaireResponse((QuestionnaireResponse) buildProcessor(this.repository)
-                    .populate(questionnaire, patientId, parameters, bundle, libraryEngine));
+            return (QuestionnaireResponse) buildProcessor(this.repository)
+                    .populate(questionnaire, patientId, parameters, bundle, libraryEngine);
+        }
+
+        public GeneratedQuestionnaireResponse populate() {
+            return new GeneratedQuestionnaireResponse(runPopulate());
         }
 
         public Bundle questionnairePackage() {

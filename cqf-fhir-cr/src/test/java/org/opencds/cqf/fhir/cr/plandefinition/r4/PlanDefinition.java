@@ -200,16 +200,9 @@ public class PlanDefinition {
             repository = Repositories.proxy(dataRepository, contentRepository, terminologyRepository);
         }
 
-        public GeneratedBundle applyR5() {
+        public Bundle testApplyR5() {
             buildRepository();
             var libraryEngine = new LibraryEngine(this.repository, evaluationSettings);
-            Bundle expectedBundle = null;
-            if (expectedBundleId != null) {
-                try {
-                    expectedBundle = repository.read(Bundle.class, expectedBundleId);
-                } catch (Exception e) {
-                }
-            }
             if (additionalDataId != null) {
                 var resource = repository.read(
                         fhirContext
@@ -219,27 +212,36 @@ public class PlanDefinition {
                         additionalDataId);
                 loadAdditionalData(resource);
             }
-            return new GeneratedBundle(
-                    (Bundle) buildProcessor(repository)
-                            .applyR5(
-                                    new IdType("PlanDefinition", planDefinitionID),
-                                    null,
-                                    null,
-                                    patientID,
-                                    encounterID,
-                                    practitionerID,
-                                    null,
-                                    null,
-                                    null,
-                                    null,
-                                    null,
-                                    null,
-                                    parameters,
-                                    null,
-                                    additionalData,
-                                    null,
-                                    libraryEngine),
-                    expectedBundle);
+            return (Bundle) buildProcessor(repository)
+                    .applyR5(
+                            new IdType("PlanDefinition", planDefinitionID),
+                            null,
+                            null,
+                            patientID,
+                            encounterID,
+                            practitionerID,
+                            null,
+                            null,
+                            null,
+                            null,
+                            null,
+                            null,
+                            parameters,
+                            null,
+                            additionalData,
+                            null,
+                            libraryEngine);
+        }
+
+        public GeneratedBundle applyR5() {
+            Bundle expectedBundle = null;
+            if (expectedBundleId != null) {
+                try {
+                    expectedBundle = repository.read(Bundle.class, expectedBundleId);
+                } catch (Exception e) {
+                }
+            }
+            return new GeneratedBundle(testApplyR5(), expectedBundle);
         }
 
         public GeneratedCarePlan apply() {
